@@ -1,14 +1,24 @@
 import { useEffect, useState } from "react";
-import { Alert, View } from "react-native";
+import { Alert, Text, View } from "react-native";
+import MapView, { Callout, Marker } from "react-native-maps";
+import * as Location from "expo-location";
 
 import { api } from "@/services/api";
+import { colors, fontFamily } from "@/styles/theme";
 
-import { Place } from "@/components/place";
+import { Places } from "@/components/places";
 import type { PlaceProps } from "@/components/place";
 import { Categories, CategoriesProps } from "@/components/categories";
-import { Places } from "@/components/places";
 
-type MarketsProps = PlaceProps
+type MarketsProps = PlaceProps & {
+  latitude: number
+  longitude: number
+}
+
+const currentLocation = {
+  latitude: -23.561187293883442,
+  longitude: -46.656451388116494
+}
 
 export default function Home() {
   const [categories, setCategories] = useState<CategoriesProps>([])
@@ -38,7 +48,25 @@ export default function Home() {
     }
   }
 
+  /**
+   * Função responsável por pegar
+   * a localização do usuário
+   */
+  async function getCurrentLocation() {
+    try {
+      const { granted } = await Location.requestForegroundPermissionsAsync()
+
+      if (granted) {
+        const location = await Location.getCurrentPositionAsync()
+        console.log(location)
+      }
+    } catch (error) {
+     console.log(error) 
+    }
+  }
+
   useEffect(() => {
+    // getCurrentLocation() - caso eu queira colocar a localização de meu dispositivo
     fetchCategories()
   }, [])
 
@@ -53,6 +81,55 @@ export default function Home() {
         onSelect={setCategory} 
         selected={category} 
       />
+
+      <MapView style={{ flex: 1 }}
+        initialRegion={{
+          latitude: currentLocation.latitude,
+          longitude: currentLocation.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        }}
+      >
+        <Marker 
+          identifier="current"
+          coordinate={{
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+          }}
+          image={require("@/assets/location.png")}
+        />
+        {markets.map((item) => (
+            <Marker
+              key={item.id}
+              identifier={item.id}
+              coordinate={{
+                latitude: item.latitude,
+                longitude: item.longitude,
+              }}
+              image={require("@/assets/pin.png")}
+            >
+              <Callout>
+                <Text 
+                style={{
+                  fontSize: 14, 
+                  fontFamily: fontFamily.medium, 
+                  color: colors.gray[600]
+                }}>
+                  {item.name}
+                </Text>
+                
+                <Text style={{
+                  fontSize: 12,
+                  fontFamily: fontFamily.regular,
+                  color: colors.gray[600]
+                }}>
+                  {item.address}
+                </Text>
+              </Callout>
+            </Marker>
+        ))}
+      </MapView>
+
       <Places data={markets} />
     </View>
   )
