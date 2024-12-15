@@ -32,7 +32,6 @@ export default function Home() {
 
       const { data } = await api.get("/markets/category/" + category)
       setMarkets(data)
-      console.log(data)
     } catch (error) {
       console.log(error)
       Alert.alert("Locais", "Não foi possível carregar os locais.")
@@ -48,7 +47,7 @@ export default function Home() {
   }, [category])
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#CECECE" }}>
       <Categories 
         data={categories} 
         onSelect={setCategory} 
