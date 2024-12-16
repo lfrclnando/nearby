@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Alert, View } from "react-native";
+import { Alert, Modal, View } from "react-native";
 import { router, useLocalSearchParams, Redirect } from "expo-router";
+import { useCameraPermissions, CameraView } from "expo-camera";
 
 import { Button } from "@/components/button";
 import { Loading } from "@/components/loading";
@@ -18,7 +19,9 @@ export default function Market() {
   const [data, setData] = useState<DataProps>()
   const [coupon, setCoupon] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isVisibleCameraModal, setIsVisibleCameraModal] = useState(false)
 
+  const [_, requestPermission] = useCameraPermissions()
   const params = useLocalSearchParams<{ id: string }>()
 
   async function fetchMarket() {
@@ -37,6 +40,18 @@ export default function Market() {
     }
   }
 
+  async function handleOpenCamera() {
+    try {
+      const { granted } = await requestPermission()
+      if (!granted) {
+        Alert.alert("Câmera", "Você precisa habilitar o uso da câmera!")
+      }
+      setIsVisibleCameraModal(true)
+    } catch (error) {
+      console.log(error)
+      Alert.alert("Câmera", "Não foi possível utilizar a câmera")
+    }
+  }
   useEffect(() => {
     fetchMarket()
   },[params.id])
@@ -56,10 +71,19 @@ export default function Market() {
       {coupon && <Coupon code={coupon} />}
 
       <View style={{ padding: 32 }}>
-        <Button>
+        <Button onPress={handleOpenCamera}>
           <Button.Title>Ler QR Code</Button.Title>
         </Button>
       </View>
+      <Modal style={{ flex: 1 }} visible={isVisibleCameraModal}>
+        <CameraView style={{ flex: 1 }} />
+
+        <View style={{ position: "absolute", bottom: 32, left: 32, right: 32 }}>
+        <Button onPress={() => setIsVisibleCameraModal(false)}>
+          <Button.Title>Voltar</Button.Title>
+        </Button>
+        </View>
+      </Modal>
     </View>
   );
 }
