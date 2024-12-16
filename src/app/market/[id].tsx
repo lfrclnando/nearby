@@ -4,6 +4,7 @@ import { router, useLocalSearchParams, Redirect } from "expo-router";
 
 import { Loading } from "@/components/loading";
 import { Cover } from "@/components/market/cover";
+import { Coupon } from "@/components/market/coupon";
 import { Details, PropsDetails } from "@/components/market/details";
 
 import { api } from "@/services/api";
@@ -47,9 +48,10 @@ export default function Market() {
   }
 
   return (
-    <View style={{flex: 1 }} >
+    <View style={{flex: 1 }}>
      <Cover uri={data.cover} />
      <Details data={data} /> 
+     <Coupon code="FM4345T6" />
     </View>
   );
 }
