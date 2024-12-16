@@ -15,7 +15,7 @@ export function Cover({ uri }: Props) {
    <ImageBackground source={{ uri }} style={s.container}>
     <View style={s.header}>
       <Button style={{ width: 40, height: 40 }} onPress={() => router.back()}>
-       {/* <Button.Icon icon={IconArrowLeft} /> */}
+       {/* <Button.Icon icon={IconArrowLeft} /> rever */}
       </Button>
     </View>
    </ImageBackground>
